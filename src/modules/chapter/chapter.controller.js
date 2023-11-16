@@ -44,6 +44,7 @@ export const createChapter = asyncHandler(async (req, res, next) => {
  * @param {Object} res - Express response object.
  * @param {Function} next - Express next middleware function.
  * @returns {Object} - JSON response indicating the success or failure of the chapter edit.
+ *
  */
 export const editChapter = asyncHandler(async (req, res, next) => {
   // Extract parameters from the request
