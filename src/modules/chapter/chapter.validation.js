@@ -14,7 +14,7 @@ export const editChapterSchema = joi
   .object({
     courseId: joi.string().custom(isValidObjectId).required(),
     chapterId: joi.string().custom(isValidObjectId).required(),
-    title: joi.string().required(),
+    title: joi.string(),
     learningObjective: joi.string(),
     startPosition: joi.string(),
     endPosition: joi.string(),

@@ -5,7 +5,7 @@ export const createVideoSchema = joi
   .object({
     courseId: joi.string().custom(isValidObjectId).required(),
     chapterId: joi.string().custom(isValidObjectId).required(),
-    title: joi.string().required(),
+    title: joi.string(),
     describtion: joi.string(),
     order: joi.string(),
   })

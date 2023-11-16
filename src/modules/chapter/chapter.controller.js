@@ -50,7 +50,7 @@ export const editChapter = asyncHandler(async (req, res, next) => {
   const { courseId, chapterId } = req.params;
   const { startPosition, endPosition, title, learningObjective } = req.body;
   const changeOrder = req.query.change_order;
-
+  console.log(title, learningObjective);
   // Find the existing chapter based on chapterId
   const chapter = await Chapter.findById(chapterId);
   if (!chapter) {

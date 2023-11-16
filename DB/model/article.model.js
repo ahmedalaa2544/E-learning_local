@@ -12,14 +12,6 @@ const articleSchema = new Schema(
       ref: "Chapter",
       reuired: true,
     },
-    number: {
-      type: Number,
-      required: true,
-    },
-    order: {
-      type: Number,
-      required: true,
-    },
     quillContent: {
       type: String,
       required: true,

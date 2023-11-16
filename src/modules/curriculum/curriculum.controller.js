@@ -77,7 +77,6 @@ export const createArticle = asyncHandler(async (req, res, next) => {
   // Extract parameters from the request
   const { courseId, chapterId } = req.params;
   const { title, quillContent, order } = req.body;
-
   // Generate a unique articleId using MongoDB ObjectId
   const articleId = new mongoose.Types.ObjectId();
 
@@ -270,8 +269,6 @@ export const editArticle = asyncHandler(async (req, res, next) => {
         );
       }
     } else if (startPosition > endPosition) {
-      console.log("The new position", startPosition, endPosition);
-
       // If the new position is before the original position, shift items down
       await Curriculum.updateMany(
         {
