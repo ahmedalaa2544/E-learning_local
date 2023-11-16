@@ -37,7 +37,6 @@ const handleUpload = async (
 
         // Get the duration of the uploaded video
         duration = await getVideoDurationInSeconds(files.video[0].path);
-
         // Extract the file extension from the uploaded video file
         const blobVideoExtension = files.video[0].originalname.split(".").pop();
 

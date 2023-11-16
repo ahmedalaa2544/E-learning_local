@@ -20,6 +20,15 @@ export const createArticleSchema = joi
     order: joi.string(),
   })
   .unknown(true);
+export const editCurriculumSchema = joi
+  .object({
+    courseId: joi.string().custom(isValidObjectId).required(),
+    chapterId: joi.string().custom(isValidObjectId).required(),
+    curriculumId: joi.string().custom(isValidObjectId).required(),
+    startPosition: joi.string().required(),
+    endPosition: joi.string().required(),
+  })
+  .unknown(true);
 
 export const editVideoSchema = joi
   .object({

@@ -20,9 +20,10 @@ export const createVideo = asyncHandler(async (req, res, next) => {
   // Extract parameters from the request
   const { courseId, chapterId } = req.params;
   const { title, describtion, order } = req.body;
-
   // Generate a unique videoId using MongoDB ObjectId
   const videoId = new mongoose.Types.ObjectId();
+  // Generate a unique curriculumId using MongoDB ObjectId
+  const curriculumId = new mongoose.Types.ObjectId();
   // Handle video file uploads and retrieve updated video details
   const { videoUrl, resources, duration, blobVideoName } = await handleUpload(
     req.files,
@@ -36,6 +37,7 @@ export const createVideo = asyncHandler(async (req, res, next) => {
     _id: videoId,
     course: courseId,
     chapter: chapterId,
+    curriculum: curriculumId,
     title: title,
     describtion: describtion,
     url: videoUrl,
@@ -49,6 +51,7 @@ export const createVideo = asyncHandler(async (req, res, next) => {
 
   // Create a new Curriculum document for the video
   const curriculum = new Curriculum({
+    _id: curriculumId,
     course: courseId,
     chapter: chapterId,
     type: "video",
@@ -79,7 +82,8 @@ export const createArticle = asyncHandler(async (req, res, next) => {
   const { title, quillContent, order } = req.body;
   // Generate a unique articleId using MongoDB ObjectId
   const articleId = new mongoose.Types.ObjectId();
-
+  // Generate a unique curriculumId using MongoDB ObjectId
+  const curriculumId = new mongoose.Types.ObjectId();
   /**
    * Handle article file uploads, retrieve updated article Resources
    *
@@ -104,6 +108,7 @@ export const createArticle = asyncHandler(async (req, res, next) => {
     _id: articleId,
     course: courseId,
     chapter: chapterId,
+    curriculum: curriculumId,
     title: title,
     quillContent: quillContent,
     resources: resources,
@@ -114,6 +119,7 @@ export const createArticle = asyncHandler(async (req, res, next) => {
 
   // Create a new Curriculum document for the article
   const curriculum = new Curriculum({
+    _id: curriculumId,
     course: courseId,
     chapter: chapterId,
     type: "article",
@@ -131,7 +137,69 @@ export const createArticle = asyncHandler(async (req, res, next) => {
 });
 
 /**
- * Controller function to edit a video within a course chapter, handling curriculum order changes, file uploads, and database updates.
+ * Edit the order of a curriculum item within a specific chapter.
+ *
+ * @param {Object} req - Express request object containing chapterId, curriculumId, and new positions.
+ * @param {Object} res - Express response object.
+ * @param {Function} next - Express next middleware function.
+ * @returns {Object} - JSON response indicating success or failure of the curriculum item order change.
+ */
+export const editCurriculum = asyncHandler(async (req, res, next) => {
+  // Extract chapterId, curriculumId, and new positions from the request parameters and body.
+  const { chapterId, curriculumId } = req.params;
+  const { startPosition, endPosition } = req.body;
+
+  // Log curriculumId for debugging purposes.
+  console.log(curriculumId);
+
+  // Find the curriculum item to be edited.
+  const curriculum = await Curriculum.findById(curriculumId);
+
+  // Check if the curriculum item exists.
+  if (!curriculum) {
+    return next(new Error("Curriculum not found"), { cause: 404 });
+  }
+
+  // Determine the direction of the position change and update the order accordingly.
+  if (startPosition < endPosition) {
+    // If the new position is after the original position, shift items up.
+    await Curriculum.updateMany(
+      {
+        chapter: chapterId,
+        order: {
+          $gt: startPosition,
+          $lte: endPosition,
+        },
+      },
+      { $inc: { order: -1 } }
+    );
+  } else if (startPosition > endPosition) {
+    // If the new position is before the original position, shift items down.
+    await Curriculum.updateMany(
+      {
+        chapter: chapterId,
+        order: {
+          $gte: endPosition,
+          $lt: startPosition,
+        },
+      },
+      { $inc: { order: 1 } }
+    );
+  }
+
+  // Update the order of the edited curriculum item.
+  const editCurriculumOrder = await Curriculum.findByIdAndUpdate(curriculumId, {
+    order: endPosition,
+  });
+
+  // Send a JSON response indicating the success or failure of the order change.
+  return editCurriculumOrder
+    ? res.status(200).json({ message: "Done" })
+    : res.json({ message: "Something went wrong" });
+});
+
+/**
+ * Controller function to edit a video within a course chapter, file uploads, and database updates.
  *
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
@@ -141,57 +209,7 @@ export const createArticle = asyncHandler(async (req, res, next) => {
 export const editVideo = asyncHandler(async (req, res, next) => {
   // Extract parameters from the request
   const { courseId, chapterId, videoId } = req.params;
-  const { startPosition, endPosition, title, describtion } = req.body;
-  const changeOrder = req.query.change_order;
-  // Retrieve the existing video document based on videoId
-  const video = await Video.findById(videoId);
-
-  // Check if the video exists
-  if (!video) {
-    return next(new Error("Video not found"), { cause: 404 });
-  }
-
-  // Check if the request includes a change_order query parameter
-  if (changeOrder) {
-    if (startPosition < endPosition) {
-      // If the new position is after the original position, shift items up
-      if (startPosition < endPosition) {
-        await Curriculum.updateMany(
-          {
-            chapter: chapterId,
-            order: {
-              $gt: startPosition,
-              $lte: endPosition,
-            },
-          },
-          { $inc: { order: -1 } }
-        );
-      }
-    } else if (startPosition > endPosition) {
-      // If the new position is before the original position, shift items down
-      await Curriculum.updateMany(
-        {
-          chapter: chapterId,
-          order: {
-            $gte: endPosition,
-            $lt: startPosition,
-          },
-        },
-        { $inc: { order: 1 } }
-      );
-    }
-
-    // Update the order of the edited video in the curriculum
-    const editCurriculumOrder = await Curriculum.findOneAndUpdate(
-      { video: videoId },
-      { order: endPosition }
-    );
-
-    // Send a response indicating the success or failure of the order change
-    return editCurriculumOrder
-      ? res.status(200).json({ message: "Done" })
-      : res.json({ message: "Something went wrong" });
-  }
+  const { title, describtion } = req.body;
 
   /**
    * Handle video file uploads, retrieve updated video details, and provide the new Blob Storage name.
@@ -233,7 +251,7 @@ export const editVideo = asyncHandler(async (req, res, next) => {
 });
 
 /**
- * Controller function to edit a artcile within a course chapter, handling curriculum order changes, file uploads, and database updates.
+ * Controller function to edit a artcile within a course chapter, file uploads, and database updates.
  *
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
@@ -243,56 +261,7 @@ export const editVideo = asyncHandler(async (req, res, next) => {
 export const editArticle = asyncHandler(async (req, res, next) => {
   // Extract parameters from the request
   const { courseId, chapterId, articleId } = req.params;
-  const { startPosition, endPosition, title, quillContent } = req.body;
-  const changeOrder = req.query.change_order;
-  // Retrieve the existing article document based on articleId
-  const article = await Article.findById(articleId);
-
-  // Check if the article exists
-  if (!article) {
-    return next(new Error("Article not found"), { cause: 404 });
-  }
-  // Check if the request includes a change_order query parameter
-  if (changeOrder) {
-    if (startPosition < endPosition) {
-      // If the new position is after the original position, shift items up
-      if (startPosition < endPosition) {
-        await Curriculum.updateMany(
-          {
-            chapter: chapterId,
-            order: {
-              $gt: startPosition,
-              $lte: endPosition,
-            },
-          },
-          { $inc: { order: -1 } }
-        );
-      }
-    } else if (startPosition > endPosition) {
-      // If the new position is before the original position, shift items down
-      await Curriculum.updateMany(
-        {
-          chapter: chapterId,
-          order: {
-            $gte: endPosition,
-            $lt: startPosition,
-          },
-        },
-        { $inc: { order: 1 } }
-      );
-    }
-
-    // Update the order of the edited article in the curriculum
-    const editCurriculumOrder = await Curriculum.findOneAndUpdate(
-      { article: articleId },
-      { order: endPosition }
-    );
-
-    // Send a response indicating the success or failure of the order change
-    return editCurriculumOrder
-      ? res.status(200).json({ message: "Done" })
-      : res.json({ message: "Something went wrong" });
-  }
+  const { title, quillContent } = req.body;
 
   /**
    * Handle article file uploads, retrieve updated article Resources

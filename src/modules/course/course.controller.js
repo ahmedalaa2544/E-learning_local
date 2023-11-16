@@ -57,11 +57,9 @@ export const editCourse = asyncHandler(async (req, res, next) => {
 
   // Extract courseId from the request parameters.
   const { courseId } = req.params;
-
   // Initialize variables for cover image and promotional video URLs.
   let coverImageUrl;
   let promotionalVideoUrl;
-
   // Check if a cover image file is provided in the request.
   if (req.files.coverImage) {
     // Extract the extension for the cover image.
@@ -71,7 +69,6 @@ export const editCourse = asyncHandler(async (req, res, next) => {
 
     // Define the path for the cover image in the user's course directory.
     const blobImageName = `Users\\${req.userId}\\Courses\\${courseId}\\Course_Cover_Image.${blobImageExtension}`;
-
     // Upload the cover image and obtain its URL.
     coverImageUrl = await upload(
       req.files.coverImage[0].path,

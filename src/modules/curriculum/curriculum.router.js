@@ -32,6 +32,15 @@ router.post(
   curriculumController.createArticle
 );
 
+// Edit an existing curriculum order
+router.patch(
+  "/:curriculumId",
+  isAuthenticated,
+  isAuthorized,
+  validation(validators.editCurriculumSchema),
+  curriculumController.editCurriculum
+);
+
 // Edit an existing video in the curriculum
 router.patch(
   "/video/:videoId",
