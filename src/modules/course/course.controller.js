@@ -14,7 +14,7 @@ import upload, { deleteDirectory } from "../../utils/azureServices.js";
  * @returns {Object} - JSON response indicating success or failure.
  */
 export const createCourse = asyncHandler(async (req, res, next) => {
-  // Extract courseTitle from the request body.
+  // Extract title from the request body.
   const { title } = req.body;
 
   // Create a new Course instance with the extracted title and the user ID from the request.
