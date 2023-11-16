@@ -26,7 +26,7 @@ router.post(
   isAuthenticated,
   isAuthorized,
   validation(validators.createArticleSchema),
-  fileUpload(customValidation.file.concat(customValidation.video)).fields([
+  fileUpload(customValidation.file).fields([
     { name: "resources", maxCount: 10 },
   ]),
   curriculumController.createArticle

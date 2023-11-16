@@ -37,8 +37,6 @@ export const editVideoSchema = joi
     videoId: joi.string().custom(isValidObjectId).required(),
     title: joi.string(),
     describtion: joi.string(),
-    startPosition: joi.string(),
-    endPosition: joi.string(),
   })
   .unknown(true);
 
@@ -49,8 +47,6 @@ export const editArticleSchema = joi
     articleId: joi.string().custom(isValidObjectId).required(),
     title: joi.string(),
     quillContent: joi.string(),
-    startPosition: joi.string(),
-    endPosition: joi.string(),
   })
   .unknown(true);
 export const deleteVideoSchema = joi
