@@ -15,11 +15,11 @@ import upload, { deleteDirectory } from "../../utils/azureServices.js";
  */
 export const createCourse = asyncHandler(async (req, res, next) => {
   // Extract courseTitle from the request body.
-  const { courseTitle } = req.body;
+  const { title } = req.body;
 
   // Create a new Course instance with the extracted title and the user ID from the request.
   const createdCourse = new Course({
-    title: courseTitle,
+    title: title,
     createdBy: req.userId,
   });
 
