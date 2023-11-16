@@ -72,7 +72,7 @@ export const getArticleSchema = joi
   .object({
     courseId: joi.string().custom(isValidObjectId).required(),
     chapterId: joi.string().custom(isValidObjectId).required(),
-    videoId: joi.string().custom(isValidObjectId).required(),
+    articleId: joi.string().custom(isValidObjectId).required(),
   })
   .required();
 export const getCurriculumSchema = joi

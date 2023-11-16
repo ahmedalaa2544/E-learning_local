@@ -51,7 +51,7 @@ router.patch(
   isAuthenticated,
   isAuthorized,
   validation(validators.editArticleSchema),
-  fileUpload(customValidation.file.concat(customValidation.video)).fields([
+  fileUpload(customValidation.file).fields([
     { name: "resources", maxCount: 10 },
   ]),
   curriculumController.editArticle
