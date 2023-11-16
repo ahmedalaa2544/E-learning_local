@@ -1,4 +1,3 @@
-import Chapter from "../../../DB/model/chapter.model.js";
 import Course from "../../../DB/model/course.model.js";
 import { asyncHandler } from "../../utils/asyncHandling.js";
 

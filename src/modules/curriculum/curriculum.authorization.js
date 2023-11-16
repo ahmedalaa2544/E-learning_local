@@ -4,20 +4,7 @@ import { asyncHandler } from "../../utils/asyncHandling.js";
 
 /**
  * Authorization middleware to check if the user has the necessary permissions to perform an action.
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
  * The user is authorized if they are the creator of the specified course and the corresponding curriculum exists.
-=======
- * The user is authorized if they are the creator of the specified course and the corresponding chapter exists.
->>>>>>> 6edbbf9c36b368aa7782cae36c58448a9c92f265
-=======
- * The user is authorized if they are the creator of the specified course and the corresponding chapter exists.
->>>>>>> 6edbbf9c36b368aa7782cae36c58448a9c92f265
-=======
- * The user is authorized if they are the creator of the specified course and the corresponding chapter exists.
->>>>>>> 6edbbf9c36b368aa7782cae36c58448a9c92f265
- *
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
  * @param {function} next - Express next middleware function.
