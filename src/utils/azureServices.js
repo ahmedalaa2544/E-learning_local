@@ -70,7 +70,6 @@ export const generateSASUrl = async (
   permissions = "r",
   timerange = 1
 ) => {
-  console.log("generateSASUrl");
   // Specify the container name for temporary uploads
   const containerName = process.env.MAIN_CONTAINER;
 

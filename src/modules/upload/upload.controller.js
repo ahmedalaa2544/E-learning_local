@@ -7,14 +7,6 @@ export const getBlobUrl = asyncHandler(async (req, res, next) => {
   const { fileName, fileType } = req.body;
   const containerName = "upload";
   const blobName = `${fileName}_${uuidv4()}.${fileType}`;
-  const response = await generateSASUrl(
-    process.env.accountName,
-    process.env.accountKey,
-    containerName,
-    blobName,
-    "racwd",
-    30,
-    { maxFileSize }
-  );
+  const response = await generateSASUrl(blobName, "racwd", 30, { maxFileSize });
   res.json(response);
 });
