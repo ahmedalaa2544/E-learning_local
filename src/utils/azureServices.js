@@ -59,25 +59,26 @@ async function getBlobServiceClient(serviceName, serviceKey) {
 /**
  * Generates a Shared Access Signature (SAS) URL for a specified blob in Azure Blob Storage.
  *
- * @param {string} serviceName - The name of the Azure Storage account.
- * @param {string} serviceKey - The access key for the Azure Storage account.
- * @param {string} containerName - The name of the container containing the blob.
- * @param {string} fileName - The hierarchy of folders and the file name in the container.
+ * @param {string} blobName - The hierarchy of folders and the blob name in the container.
  * @param {string} permissions - The permissions to assign to the SAS token. Default is "r" (read-only).
  * @param {number} timerange - The duration of the SAS token in minutes. Default is 1 minute.
  * @returns {Object} - An object containing the SAS token URL and the URL of the blob.
  * @throws {Error} - Throws an error if required parameters are missing or if any operation fails.
  */
 export const generateSASUrl = async (
-  serviceName,
-  serviceKey,
-  containerName,
-  fileName,
+  blobName,
   permissions = "r",
   timerange = 1
 ) => {
+  console.log("generateSASUrl");
+  // Specify the container name for temporary uploads
+  const containerName = process.env.MAIN_CONTAINER;
+
+  const serviceName = process.env.accountName;
+  const serviceKey = process.env.accountKey;
+
   // Check if required parameters are provided
-  if (!serviceName || !serviceKey || !fileName || !containerName) {
+  if (!serviceName || !serviceKey || !blobName || !containerName) {
     return "Generate SAS function missing parameters";
   }
 
@@ -91,7 +92,7 @@ export const generateSASUrl = async (
   );
 
   // Get the BlockBlobClient for the specified file in the container
-  const blockBlobClient = await containerClient.getBlockBlobClient(fileName);
+  const blockBlobClient = await containerClient.getBlockBlobClient(blobName);
 
   // Best practice: create time limits
   const SIXTY_MINUTES = timerange * 60 * 1000;
@@ -104,7 +105,6 @@ export const generateSASUrl = async (
     permissions: BlobSASPermissions.parse(permissions),
     protocol: SASProtocol.Https,
   });
-
   // Return an object containing the SAS token URL and the URL of the blob
   return {
     accountSasTokenUrl: accountSasTokenUrl,
@@ -156,9 +156,6 @@ const upload = async (
 
           // Generate a Shared Access Signature (SAS) URL for secure blob access
           const { accountSasTokenUrl, fileUrl } = await generateSASUrl(
-            process.env.accountName,
-            process.env.accountKey,
-            containerName,
             blobName,
             "racwd",
             30

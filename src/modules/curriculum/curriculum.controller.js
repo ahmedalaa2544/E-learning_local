@@ -6,7 +6,7 @@ import Video from "../../../DB/model/video.model.js";
 import Article from "../../../DB/model/article.model.js";
 import mongoose from "mongoose";
 import handleUpload from "./curriculum.handleUpload.js";
-import { deleteDirectory } from "../../utils/azureServices.js";
+import { deleteDirectory, generateSASUrl } from "../../utils/azureServices.js";
 import { mergeSort } from "../../utils/dataSructures.js";
 /**
  * Controller function to create a new video within a course chapter, handling file uploads and database operations.
@@ -148,9 +148,6 @@ export const editCurriculum = asyncHandler(async (req, res, next) => {
   // Extract chapterId, curriculumId, and new positions from the request parameters and body.
   const { chapterId, curriculumId } = req.params;
   const { startPosition, endPosition } = req.body;
-
-  // Log curriculumId for debugging purposes.
-  console.log(curriculumId);
 
   // Find the curriculum item to be edited.
   const curriculum = await Curriculum.findById(curriculumId);
@@ -404,9 +401,17 @@ export const getVideo = asyncHandler(async (req, res, next) => {
     return next(new Error("Video not found"), { cause: 404 });
   }
 
+  //Obtain the Shared Access Signature (SAS) URL for a specific video blob.
+
+  const videoBlobName = video.blobName;
+  const { accountSasTokenUrl } = await generateSASUrl(videoBlobName, "r", "60");
+
   // Send a response containing video details
   return video
-    ? res.status(200).json({ message: "Done", video: video })
+    ? res.status(200).json({
+        message: "Done",
+        video: { ...video._doc, url: accountSasTokenUrl, blobName: undefined },
+      })
     : res.json({ message: "Something went wrong" });
 });
 
@@ -448,7 +453,7 @@ export const getArticle = asyncHandler(async (req, res, next) => {
 
   // Send a response containing article details
   return article
-    ? res.status(200).json({ message: "Done", article: article })
+    ? res.status(200).json({ message: "Done", article: article._doc })
     : res.json({ message: "Something went wrong" });
 });
 
